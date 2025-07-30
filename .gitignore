@@ -172,6 +172,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+csv_data/4gram_matrix_amino_acid_combined.csv
+csv_data/5gram_matrix_amino_acid_combined.csv
 
 #documentation
 documentation/documentation.aux

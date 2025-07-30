@@ -1,0 +1,2 @@
+5gram_matrix_amino_acid_combined.csv filter=lfs diff=lfs merge=lfs -text
+4gram_matrix_amino_acid_combined.csv filter=lfs diff=lfs merge=lfs -text
