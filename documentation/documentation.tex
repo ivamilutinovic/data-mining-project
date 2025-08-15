@@ -69,6 +69,20 @@
 \tableofcontents
 \newpage
 \section{Uvod}
+Analiza bioloških sekvenci pomoću n-gram pristupa predstavlja moćnu tehniku za otkrivanje obrazaca i međusobnih sličnosti između različitih vrsta virusa. 
+U ovom radu fokusirali smo se na primenu n-gramske analize na proteinske (amino-kiselinske) i genomske (nukleotidne) sekvence odabranih virusa: SARS-CoV-2, MERS, Ebola i Marburg. 
+Sekvence su preuzete sa NCBI Virus portala, uz primenu filtera kako bi se obezbedila potpuna i nedvosmislena reprezentacija podataka.
+
+Osnovna ideja n-gram pristupa jeste razlaganje sekvence na sve moguće podnizove određene dužine $n$, pri čemu se meri učestalost njihovog pojavljivanja. 
+Na taj način, svaka sekvenca dobija svoj numerički profil u \emph{n}-dimenzionalnom prostoru, što omogućava primenu različitih metoda mašinskog učenja i statističke analize.
+U našem istraživanju, za amino-kiselinske sekvence korišćeni su trigrami, tetragrami i pentagrami ($n = 3,4,5$), dok su za nukleotidne sekvence analizirani duži motivi ($n = 6,7,8,9$), 
+čime je obuhvaćen širi spektar informativnih obrazaca – od kraćih, opštih motiva, do dužih i specifičnih genetskih potpisa.
+
+Dobijeni \emph{n}-gram profili poslužili su kao ulazni podaci za različite metode klasterovanja, uključujući \textit{Self-Organizing Maps} (SOM), hijerarhijsko klasterovanje, K-Means i HDBSCAN. 
+Cilj analize bio je da se ispita u kojoj meri \emph{n}-gramska reprezentacija može razlikovati viruse prema tipu, rodu ili vrsti, kao i da se identifikuju sličnosti između proteinskih i genetskih sekvenci 
+koje bi mogle imati filogenetski ili funkcionalni značaj.
+
+Ovakav pristup ima praktičnu primenu u bioinformatici, naročito u taksonomskoj klasifikaciji virusa, detekciji evolutivnih odnosa, kao i u prediktivnoj analizi novih sekvenci koje tek treba svrstati u postojeći filogenetski okvir.
 \newpage
 \section{Parsiranje podataka i n-gramska analiza}
 \textbf{Podaci i izvor:} U cilju klasterovanja i određivanja pravila pridruživanja više vrsta virusa (SARS-CoV-2, MERS, Ebola i Marburg), prikupljeni su sekvencioni podaci sa portala \textbf{NCBI Virus:} \url{https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/find-data/virus}. Primenjeni su filteri: \textit{ambiguous characters = 0} (isključivo
@@ -625,6 +639,12 @@ prepoznaje samo dve velike grupe (moguće podela na dve velike familije virusa) 
 različite (noise) ili ih uključuje u te grupe sa manjom pouzdanošću.
 
 %SLIKA ZA HDBSCAN SA NOVIM PARAMETRIMA I SLIKA TABELE GDE PISE SILUETA
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.2\textwidth]{images/hdbscan.png}
+    \caption{HDBSCAN}
+    \label{fig:3d}
+\end{figure}
 
 \noindent
 \begin{minipage}{\textwidth}
