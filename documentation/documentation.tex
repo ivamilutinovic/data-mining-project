@@ -7,6 +7,7 @@
 \usepackage{url}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
+\usepackage{float}
 
 \usepackage{listings}
 \usepackage{xcolor}
@@ -304,7 +305,7 @@ Koristile smo dve vrste vizualizacija za svaku n-gram kombinaciju:
     \centering
     \includegraphics[width=0.5\textwidth]{images/som-amino-acid-protein.png}
     \caption{Vizualizacija za grupisanje prema tipu proteina}
-    \label{fig:som-struktura}
+    \label{fig:som-struktura3}
 \end{figure}
 
 \textbf{Diskusija rezultata:}
@@ -322,7 +323,7 @@ Broj BMU klastera koji su različiti (tj. unikatne pozicije na SOM mapi koje su 
     \centering
     \includegraphics[width=0.5\textwidth]{images/som-amino-acid-virus.png}
     \caption{Vizualizacija za grupisanje prema tipu virusa}
-    \label{fig:som-struktura}
+    \label{fig:som-struktura2}
 \end{figure}
 
 \textbf{Slika 1 i 2:} Primer rezultata samoorganizujuće mape za proteinske sekvence (3-gram frekvencije
@@ -359,7 +360,7 @@ Za razliku od amino-kiselinskih podataka, SOM mreža je za sve nukleotidne n-gra
     \centering
     \includegraphics[width=0.5\textwidth]{images/nucleotide-virus.png}
     \caption{Vizualizacija za grupisanje prema tipu virusa}
-    \label{fig:som-struktura}
+    \label{fig:som-struktura1}
 \end{figure}
 
 \textbf{Slika 3:} Primer rezultata za nukleotidne sekvence – SOM projekcija na osnovu 6-mer frekvencijskih profila
@@ -384,9 +385,313 @@ klasterovanje viralnih sekvenci. Kao i za 6-grame, i kod 7-grama, 8-grama i 9-gr
 \end{itemize}
 
 \newpage
+\subsection{Hijerarhijsko klasterovanje}
 
-%\begin{thebibliography}
-    
-%\end{thebibliography}
+Hijerarhijsko klasterovanje: Nakon HDBSCAN analize, primenile smo aglomerativno hijerarhijsko
+klasterovanje (metod najbližeg suseda / Wardove metode) na iste skupove podataka (6-gram do 9-gram).
+Cilj je bio da potvrdimo nalaze i odredimo optimalan broj klastera pomoću metrika validacije. Izračunate su
+tri metrike za svaki mogući broj klastera k od 2 do 10: silueta, Calinski-Harabasz indeks i Davies-
+Bouldin indeks. Silueta ocenjuje homogenost klastera i njihovu separaciju (viša vrednost je bolja) ; Calinski-Harabasz (CH) indeks računa odnos između-varijacije i unutar-varijacije (takođe veći je bolji za jasno
+razdvojene klastere) ; Davies-Bouldin (DB) indeks meri prosečnu „sličnost” svakog klastera sa njemu
+najsličnijim susednim klasterom (niža vrednost znači bolju separaciju) . Grafikoni ovih metrika u funkciji
+broja klastera $k$ prikazani su za svaki n-gram profil (4 grafa po metriku, za 6,7,8,9-gram). Posmatrajući
+grafikone, uočile smo da je za 6-gram podatke metrika siluete bila najveća za otprilike 5 klastera, što se
+poklapa sa HDBSCAN rezultatom od 5 klastera. Istovremeno, Calinski-Harabasz indeks je pokazivao lokalni
+maksimum u tom području, a Davies-Bouldin minimum, potvrđujući da je podela na 5 grupa najrazumnija
+za 6-mer profile. Nasuprot tome, za 7-gram, 8-gram i 9-gram grafici su sugerisali manje brojeve klastera, 
+tipično silueta je bila najveća za 2 ili 3 klastera, dok bi CH indeks takođe tu negde imao prelom (elbow). Ove
+metrike dakle podržavaju zaključak da sa dužim n-gramima podaci efekivno formiraju dve glavne grupe
+(plus eventualno treću manju). Mi smo se odlučile da kao optimalan broj klastera uzmemo k=3 za dalje
+analize, kao kompromis koji obuhvata glavnu podelu (filovirusi vs. koronavirusi) ali i dozvoljava mogućnost
+odvajanja treće grupe (npr. Marburg ili određeni outlier).
+
+\subsubsection{Nad amino-kiselinskim sekvencama}
+
+\noindent
+\begin{minipage}{\textwidth}
+Hijerarhijsko klasterovanje za 3-gram, 4-gram i 5-gram profile prikazano je pomoću tri evaluacione metrike 
+(silhouette, Calinski–Harabasz i Davies–Bouldin indeksi) u funkciji broja klastera $k$ od 2 do 10. Kod svih profila 
+silueta dostiže maksimum pri manjem broju klastera (2–3), a zatim postepeno opada, što ukazuje na to da je struktura 
+podataka relativno kompaktna i da manji broj grupa obezbeđuje jasnije granice. Calinski–Harabasz indeks takođe naglo 
+opada nakon $k=2$, sugerišući da dodatno povećanje broja klastera ne poboljšava razdvajanje među njima. Davies–Bouldin 
+indeks je najniži pri $k=2$ ili $k=3$, potvrđujući da je tu separacija među grupama najveća. Ovi rezultati konzistentno 
+sugerišu da za sve tri dužine n-grama optimalan broj klastera leži u rasponu od 2 do 3, što se uklapa u očekivanje da kraći 
+n-grami još uvek grupišu podatke u relativno grube, ali stabilne kategorije.
+\end{minipage}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{images/hcamino.png}
+    \caption{Odnos mtrika i broja klastera za sve n-grame}
+    \label{fig:hc_aa_metricks}
+\end{figure}
+
+\noindent
+\begin{minipage}{\textwidth}
+Na slici 5 prikazana je PCA projekcija n-gram karakteristika ($3-$, $4-$ i $5-$gram), gde su tačke obojene prema virusnim etiketama (virus\_type), uz obeležene klastere dobijene hijerarhijskim klasterovanjem za $k=3$. Kod 3-gram profila klasteri su manje kompaktni, sa delimičnim preklapanjem između porodica, mada se već naziru dve glavne grupacije – filovirusi (nijanse narandžaste, crvene i zelene) i koronavirusi (nijanse plave i ljubičaste). Kod $4-$grama grupisanje postaje jasnije: jedan klaster obuhvata isključivo filoviruse, drugi koronaviruse, dok je treći manji i okuplja nekoliko izdvojenih sekvenci. Kod $5-$grama klasteri su vrlo zbijeni, sa gotovo potpunim razdvajanjem između glavnih porodica, ali uz tendenciju da se razlike između blisko srodnih virusa unutar iste porodice smanje. Generalno, klasterovanje n-gram profila po virusnom tipu pokazuje da su genomske sekvence srodnih virusa grupisane zajedno, što odražava njihove zajedničke evolucione i statističke obrasce u raspodeli nukleotida.
+\end{minipage}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1.2\textwidth]{images/hcvirusaa.png}
+    \caption{Odnos mtrika i broja klastera za sve n-grame}
+    \label{fig:hc_virus}
+\end{figure}
+
+\noindent
+\begin{minipage}{\textwidth}
+Na drugom setu grafika (slika 6) prikazana je PCA projekcija n-gram karakteristika (3-, 4- i 5-gram) obojenih prema proteinskim etiketama (protein\_type), uz iste parametre klasterovanja ($k=3$). Za razliku od razdvajanja po virusima, ovde je preklapanje znatno veće, jer proteini istog tipa mogu postojati kod filovirusa i koronavirusa, pa genomski profil proteina ne mora biti jedinstven za jednu virusnu porodicu. Kod 3-grama tačke su znatno raspršenije i klasteri manje jasni. Kod 4-grama uočava se bolja kompaktnost i delimično razdvajanje proteinskih grupa, dok 5-gram dovodi do najzbijenijih klastera, ali uz smanjenu vidljivost razlika između srodnih proteina. Ovakav obrazac ukazuje da je n-gram pristup efikasniji za razdvajanje sekvenci po virusnom tipu nego po tipu proteina, jer su proteini često konzervisani između različitih virusa i dele slične n-gram frekvencijske obrasce.
+\end{minipage}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1.2\textwidth]{images/hcproteinaa.png}
+    \caption{Vizualizacija}
+    \label{fig:hc_protein}
+\end{figure}
+
+\noindent
+\begin{minipage}{\textwidth}
+Dendogram (slika 7): Na ranim nivoima spajaju se sekvence istog virusa.
+Srednji nivoi konsoliduju unutar-virusne grupe u veće grane po virusnoj porodici.
+Kasni nivoi spajaju velike grane (filovirusi - koronavirusi).
+Povećanje n-grama produžava razdaljine između glavnih grana i pojačava separaciju.
+\end{minipage}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{images/hcdenaa.png}
+    \caption{Dendogram}
+    \label{fig:hc_dend}
+\end{figure}
+
+\newpage
+\subsubsection{Nad nukleotidnim sekvencama}
+
+
+Primenile smo aglomerativno hijerarhijsko
+klasterovanje (metod najbližeg suseda / Wardove metode) na iste skupove podataka (6-gram do 9-gram).
+Cilj je bio da potvrdimo nalaze i odredimo optimalan broj klastera pomoću metrika validacije. Izračunate su
+tri metrike za svaki mogući broj klastera $k$ od 2 do 10: silueta, Calinski-Harabasz indeks i Davies-
+Bouldin indeks. Silueta ocenjuje homogenost klastera i njihovu separaciju (viša vrednost je bolja) ; Calinski-Harabasz (CH) indeks računa odnos između-varijacije i unutar-varijacije (takođe veći je bolji za jasno
+razdvojene klastere) ; Davies-Bouldin (DB) indeks meri prosečnu „sličnost” svakog klastera sa njemu
+najsličnijim susednim klasterom (niža vrednost znači bolju separaciju) . Grafikoni ovih metrika u funkciji
+broja klastera $k$ prikazani su za svaki n-gram profil (4 grafa po metriku, za 6,7,8,9-gram). Posmatrajući
+grafikone, uočile smo da je za 6-gram podatke metrika siluete bila najveća za otprilike 5 klastera, što se
+poklapa sa HDBSCAN rezultatom od 5 klastera. Istovremeno, Calinski-Harabasz indeks je pokazivao lokalni
+maksimum u tom području, a Davies-Bouldin minimum, potvrđujući da je podela na 5 grupa najrazumnija
+za 6-mer profile. Nasuprot tome, za 7-gram, 8-gram i 9-gram grafici su sugerisali manje brojeve klastera –
+tipično silueta je bila najveća za 2 ili 3 klastera, dok bi CH indeks takođe tu negde imao prelom (elbow). Ove
+metrike dakle podržavaju zaključak da sa dužim n-gramima podaci efekivno formiraju dve glavne grupe
+(plus eventualno treću manju). Mi smo se odlučile da kao optimalan broj klastera uzmemo $k=3$ za dalje
+analize, kao kompromis koji obuhvata glavnu podelu (filovirusi vs. koronavirusi) ali i dozvoljava mogućnost
+odvajanja treće grupe (npr. Marburg ili određeni outlier).
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1.2\textwidth]{images/hc_metrika_nuk.png}
+    \caption{Odnos mtrika i broja klastera za sve n-grame}
+    \label{fig:hc_met_nuk}
+\end{figure}
+
+Na slici ispod (slika 9) prikazana je PCA projekcija 6-gram karakteristika, gde su tačke obojene prema virusnim
+etiketama (tipovima virusa), uz obeležene klastere dobijene hijerarhijskim klasterovanjem za $k=3$. Jasno se
+vidi da postoji jedna grupacija (klaster) koja sadrži isključivo tačke označene bojama koje predstavljaju
+filoviruse (nijanse iste palete za različite Ebola vrste, plus jedna za Marburg), dok je druga grupacija tačaka
+(drugi klaster) u potpunosti druge boje – to su koronavirusi. Treći klaster je bio vrlo mali i u ovom primeru je
+obuhvatio samo jednu ili dve tačke (zavisno od $k$ preseka), što bi odgovaralo nekoj izdvojenoj sekvenci ili
+noise grupi. Generalno, klasterovanje nukleotidnih n-gram profila virusa grupisalo je genomske
+sekvence prema porodici i rodu virusa, što znači da su virusi srodnih tipova imali slične obrasce n-gram
+frekvencija. Ovakav rezultat je u skladu sa očekivanjem da evolucioni srodni virusi dele određene statističke
+osobine genoma (npr. sličan sadržaj baza i dinukleotidne preferencije), čime se razlikuju od udaljenijih
+grupa.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1.2\textwidth]{images/hc_nuk.png}
+    \caption{Vizualizacija}
+    \label{fig:hc_nuk}
+\end{figure}
+
+Izvršile smo vizuelizaciju hijerarhijskog klasterovanja tako što smo nacrtale simplifikovane dendograme i projekcije podataka sa označenim klasterima. Dendrogrami (trunkovani na nivou 6 radi preglednosti) su jasno pokazali odvajanje dve velike grane – jedna koja je sadržala sve filoviruse (Ebola i Marburg pod-grane), i druga sa koronavirusima – potvrđujući da je ta podela najdominantnija u podacima. Na nižim nivoima dendrograma
+videlo se dalje grananje filovirusa na pojedinačne vrste Ebola virusa, što odgovara očekivanom filogenetskom razdvajanju. Dakle, hijerarhijsko klasterovanje nije samo potvrdilo nalaze HDBSCAN-a, već je i pružilo hijerarhijski kontekst – npr. pokazalo je da su svi ebolavirusi prvo grupisani zajedno pre nego što se priključe marburgvirusima na višem nivou (Filoviridae), što se zatim tek na najvišem nivou spaja sa klasterom koronavirusa (što odgovara razlici između Filoviridae i Coronaviridae).
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1.2\textwidth]{images/hc_den_nuk.png}
+    \caption{Dendogram}
+    \label{fig:hc_ded}
+\end{figure}
+
+\newpage
+\subsection{K-Means}
+K-Means klasterovanje je korišćeno za skup amino-kiselinskih sekvenci. Iako zahteva da se unapred zada broj klastera k, K-Means je jednostavan i veoma brz algoritam koji efikasno skalira na veće skupove podataka . U našem slučaju, dimenzionalnost vektora amino-kiselinskih n-grama (3-grama, 4-grama, 5-grama) je relativno velika, ali K-Means uspešno može da grupiše podatke tako da minimizira varijansu unutar klastera. Poznato je da K-Means daje najbolje rezultate kada su klasteri globularni (sferni) i relativno uravnoteženi po veličini, što smo pretpostavili kao razumno približenje za amino-kiselinske profile virusa. Dodatno, K-Means ima prednost brzog računanja i lakog ponavljanja za različite k, što nam omogućava da primenimo metode za određivanje optimalnog broja klastera (npr. metod „lakta“ i koeficijent siluete). K-Means je generalno popularan u bioinformatici za osnovno grupisanje sekvenci ili osobina jer je jednostavan za primenu i brzo konvergira.
+
+\subsubsection{Nad amino-kiselinskim sekvencama}
+\noindent
+\begin{minipage}{\textwidth}
+Kao što je pomenuto, K-Means zahteva unapred definisan broj klastera k, pa smo prvo primenile metod silueta i srodne metrike da bismo odabrale k. Isprobale smo vrednosti $k=2$ do 10 za svaki skup (3-gram, 4-gram, 5-gram) i izračunale prosečnu siluetu, Calinski-Harabasz i Davies-Bouldin indekse. Sve tri metrike su uglavnom sugerisale da je k=3 optimalan ili blizu optimalnog za sve tri veličine n-grama (kod 3-grama se takođe k=4 javljao kao moguće rešenje prema CH kriterijumu, ali silueta je opadala za k>3). Odlučile smo se za tri klastera kao zajednički broj koji dobro opisuje strukturu podataka u sva tri skupa n-grama, radi konzistentnosti interpretacije. Vredi napomenuti da je u ovoj analizi broj klastera relativno mali, što odgovara našem očekivanju da se proteini možda grupišu u nekoliko glavnih kategorija.
+\end{minipage}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.2\textwidth]{images/km_met.png}
+    \caption{Odnos mtrika i broja klastera za sve n-grame}
+    \label{fig:km_met}
+\end{figure}
+
+\noindent
+\begin{minipage}{\textwidth}
+Nakon određivanja broja klastera, K-Means algoritam je pokrenut (sa k=3 i inicijalizacijom ponovljenom više puta radi stabilnosti). Rezultujući klasteri su analizirani na dva načina: (1) posmatrali smo klastere s obzirom na tip virusa odakle potiče protein, i (2) s obzirom na vrstu proteina (funkciju proteina). Ideja je bila da odgovorimo na pitanje: Da li se proteinske sekvence grupišu prvenstveno prema tome kom virusu pripadaju ili prema tome koju ulogu/protein predstavljaju?
+\end{minipage}
+
+\vspace{1cm}
+
+\noindent
+\begin{minipage}{\textwidth}
+Dobijeni klasteri u prostoru glavnih komponenti prikazani su na slikama ispod. Prva slika prikazuje projicirane proteine obojene prema virusnom tipu (npr. svi proteini iz koronavirusa jedne boje, iz ebolavirusa druge, itd.), dok druga slika prikazuje iste klastere ali sa bojama prema vrsti proteina (npr.glikoproteini jedne boje, polimeraze druge, nukleoproteini treće itd.). Crnim znakom "X" označeni su centri klastera koje je odredio K-Means algoritam u prostoru prve dve komponente PCA.
+\end{minipage}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.2\textwidth]{images/km_virus.png}
+    \caption{Odnos mtrika i broja klastera za sve n-grame}
+    \label{fig:km_vir}
+\end{figure}
+
+Slika 12: Klasterovanje proteina virusa prema amino-kiselinskim n-gram profilima (3-gram, 4-gram, 5-gram). Prikazan je PCA grafikon za svaku dimenziju n-grama (kolone grafikona), gde su tačke obojene prema tipu virusa odakle potiče dati protein. Crni znaci "X" označavaju centri klastera dobijenih K-Means algoritmom za k=3. Uočava se da su proteini grupisani tako da većina proteina iz iste virusne porodice (isti koloritet) leži u istom klasteru. (Primjer: narandžaste i ljubičaste tačke – koje predstavljaju različite vrste Ebola virusa – čine jedan klaster levo, zelene i plave tačke – koje predstavljaju koronaviruse – čine drugi klaster desno.)
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.2\textwidth]{images/km_protein.png}
+    \caption{Odnos mtrika i broja klastera za sve n-grame}
+    \label{fig:km_prot}
+\end{figure}
+
+
+\noindent
+\begin{minipage}{\textwidth}
+Slika 13: Isti klasteri kao na Sl. 12, ali su tačke obojene prema tipu proteina (funkcionalnoj klasifikaciji proteina). Oznake boja: npr. zelena boja = glikoproteini (GP) različitih virusa, plava = polimerazni lanci (npr. L protein Ebola virusa, ili polimeraza koronavirusa), crvena = nukleokapsidni proteini itd. Vidljivo je da unutar istog klastera postoje raznobojne tačke, što znači da klasteri sadrže više različitih vrsta proteina – nisu se grupisali proteini istog tipa, već pretežno proteini istog virusa.
+\end{minipage}
+
+\vspace{1cm} 
+
+Konkretno, u rezultatima vidimo da je jedan klaster obuhvatio sve proteine filovirusa (različite boje u tom klasteru na Sl. 2 predstavljaju GP, NP, VP35 itd. iz Ebola/Marburg virusa), dok je drugi klaster obuhvatio sve proteine koronavirusa (opet različite funkcije, ali svi potiču od korona virusa). Treći klaster je bio malobrojan i uključivao je eventualno proteine iz neke treće grupe virusa ako je bila zastupljena (u našem skupu moguće ako smo imali predstavnika druge porodice, ili je pak treći klaster činio outlier). Ovakav ishod je očekivan, jer su sekvence proteina unutar istog virusa relativno konzervativne u pogledu kompozicije, dele specifičan obrazac aminokiselinske zastupljenosti (uslovljen genomom i stilom kodiranja tog virusa), dok isti tipovi proteina između filogenetski udaljenih virusa (npr. površinski glikoproteini Ebola vs. korona) nemaju sličnost u primarnoj strukturi koja bi ih grupisala. Zapravo, rezultati impliciraju da je signal virusne pripadnosti jači od signala proteinske funkcije u prostoru n-gram frekvencija.
+
+\vspace{1cm}
+
+\noindent
+\begin{minipage}{\textwidth}
+Ovo zapažanje možemo povezati sa biološkim činjenicama: proteini jednog virusa evoluiraju zajedno i svi su pod uticajem globalnih svojstava tog virusa (npr. nukleotidnog sastava genoma, stope mutacija, pritiska imunog sistema domaćina, mehanizama replikacije itd.), što može dovesti do toga da i različiti proteini tog virusa imaju slične statističke osobine (aminokiselinski sastav, preferencije dipeptida, itd.). Nasuprot tome, isti tip proteina kod različitih virusa (recimo, RNA polimeraza kod RNK virusa) može deliti određene katalitičke motive na sekvenci, ali će veliki deo sekvence biti različit zbog dugog nezavisnog evoluiranja – stoga njihov n-gram profil neće biti dovoljno sličan da bi ih K-Means spojio u isti klaste
+\end{minipage}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.2\textwidth]{images/3d.png}
+    \caption{Odnos mtrika i broja klastera za sve n-grame}
+    \label{fig:3d}
+\end{figure}
+
+Slika 14 prikazuje 3D projekciju podataka nakon PCA analize. Svaka tačka predstavlja jedan uzorak, a njena pozicija određena je vrednostima u tri glavne komponente (PC1, PC2, PC3), koje zadržavaju najveći deo varijanse podataka. Prikaz iz više uglova omogućava uočavanje prirodnih grupa i raspodele uzoraka, iako eksplicitno klasterovanje nije izvršeno.
+
+\subsection{HDBSCAN}
+
+HDBSCAN je metoda zasnovana na gustini koja automatski određuje broj klastera na osnovu strukture
+podataka, bez potrebe da se unapred zada k. To ga čini pogodnim za kompleksne skupove podataka
+sa nepoznatim brojem grupa i neravnomernom gustinom tačaka. Takođe, HDBSCAN može da otkrije
+klastere nepravilnih oblika i da izdvoji šum (outlier podatke) kao posebnu kategoriju , što je korisno kod
+bioloških podataka gde neki virusi mogu biti jedinstveni i ne pripadaju nijednoj grupi. U našem slučaju,
+vektori karakteristika (n-gram frekvencije) mogu imati kompleksnu strukturu, pa je prednost HDBSCAN-a
+što identifikuje stabilne klastere različitih oblika i veličina bez stroge pretpostavke o raspodeli podataka.
+Pored toga, HDBSCAN internim postupkom gradi hijerarhiju klastera (dendrogram zasnovan na
+minimalnom raspinjućem drvetu), što omogućava uvid u strukturu grupisanja na više nivoa granularnosti.
+Ovakav pristup je u skladu sa savremenim metodama za grupisanje genetičkih sekvenci – na primer,
+alat ViralClust koristi k-mer reprezentaciju genoma i HDBSCAN (u kombinaciji sa UMAP projekcijom) za
+grupisanje virusa po sličnosti genoma.
+
+\subsubsection{Nad nukleotidnih sekvencama}
+
+Algoritam je pronašao jasne klastere među virusnim genomima. Konkretno, za 6-gram
+profile identifikovano je 5 klastera (plus određeni broj šumskih tačaka koje nisu pripale nijednom klasteru),
+dok je za više vrednosti $n$ (7-gram, 8-gram, 9-gram) uglavnom detektovao 2 klastera uz veći udeo šuma.
+Ovaj trend sugeriše da kraći n-grami (6-meri) nose dovoljno informacija da razlikuju više finih grupa virusa,
+dok duži n-grami (poput 9-mera) daju vrlo specifične profile zbog kojih se virusi grupišu samo u grublje
+kategorije, a mnogi specifični virusi ostaju izdvojeni kao šum. Kvalitet klasterovanja meren je koeficijentom
+silhouette – za 6-grame dobijena je prilično visoka prosečna silueta (~0.43), što ukazuje na dobro odvojene
+klastere. Za 7-grame i duže, silueta je bila niža (~0.20–0.23), u skladu sa činjenicom da je algoritam tu
+uglavnom pronašao samo dva klastera i veliki broj izdvojenih tačaka (što smanjuje prosečnu siluetu). Ovo
+može značiti da se sa porastom dužine n-grama viralni genom postaje toliko jedinstven da HDBSCAN
+prepoznaje samo dve velike grupe (moguće podela na dve velike familije virusa) i tretira ostale kao dovoljno
+različite (noise) ili ih uključuje u te grupe sa manjom pouzdanošću.
+
+%SLIKA ZA HDBSCAN SA NOVIM PARAMETRIMA I SLIKA TABELE GDE PISE SILUETA
+
+\noindent
+\begin{minipage}{\textwidth}
+\textbf{Diskusija}: Važno je napomenuti da HDBSCAN ne zahteva odabir parametra $k$, već parametre minimalne veličine klastera i slično. Mi smo koristile relativno konzervativne vrednosti (min\_cluster\_$size = 2$, min\_samples$ = 1$)
+kako bismo omogućile detekciju i manjih grupa. Detektovani klasteri pokazali su jaku korelaciju sa
+taksonomijom virusa. Analizom oznaka sekvenci (prva kolona dataseta predstavljala je tip ili naziv virusa)
+utvrdile smo da su, na primer, genomi različitih ebolavirusa grupisani zajedno, odvojeno od genoma
+koronavirusa. HDBSCAN je, dakle, uspeo da automatski izdvoji familije virusa na osnovu n-gram sastava
+njihovih genoma. Za 6-grame, pet identifikovanih klastera približno su odgovarali: (1) grupa ebolavirusa
+(različite vrste Ebola virusa poput Zair, Sudan, Bundibugyo i sl. zajedno), (2) Marburg virus (blizak Ebola
+virusima ali dovoljno različit da čini poseban klaster), (3) grupu koronavirusa (različiti beta-koronavirusi,
+uključujući MERS, SARS i sl.), i preostale manje grupe povezane sa drugim rodovima. Ovakva podela
+reflektuje biološku stvarnost – filovirusi (Ebola i Marburg) čine jednu nad-grupu, dok koronavirusi čine
+drugu, s tim da unutar filovirusa postoje podgrupe među vrstama ebolavirusa. Za veće $n$ (7–9), HDBSCAN
+je nalazio samo po 2 klastera – u suštini je grupisao sve filoviruse u jedan klaster, a sve koronaviruse u drugi,
+dok su neki pojedinačni virusi ostajali označeni kao šum. To indicira da su 7–9-mer frekvencije toliko
+specifične da ističu samo grubu podelu (verovatno prema familijama virusa), dok fine razlike među srodnim
+virusima (npr. različite vrste ebolavirusa) više ne formiraju stabilne klastere za datu konfiguraciju
+parametara.
+\end{minipage}
+\vspace{1cm}
+
+Uz vizuelizaciju pomoću PCA, mogle smo da prikažemo tačke (genome) u 2D prostoru bojene prema pravim etiketama (tipovima virusa) i da označimo klastere dobijene HDBSCAN-om. Ti scatter grafici su potvrdili da
+su tačke istih virusnih grupacija završile blizu jedna druge i u istom klasteru. Klasteri su imali biološku
+interpretaciju: npr. svi ebolavirusi bili su blizu i dodeljeni jednom klasteru, odvojeni od klastera koji je obuhvatao koronaviruse. Marburg virus se u nekim analizama izdvajao kao poseban mali klaster ili kao noise, zavisno
+od parametara, što opet ima smisla jer je filovirus ali dosta divergentan od ebolavirusa. Ovi nalazi
+demonstriraju da n-gram profil genoma nosi signal koji odgovara virusnoj klasifikaciji, što je u skladu s
+drugim studijama gde su k-mer pristupi korišćeni za taksonomsko grupisanje genoma.
+\vspace{1cm}
+
+\noindent
+\begin{minipage}{\textwidth}
+\textbf{Zakljucak:} Primena HDBSCAN algoritma na n-gram profile virusnih genoma pokazala je da kraći n-grami (6-meri) omogućavaju detekciju više finih klastera, dok duži n-grami (7–9-meri) ističu samo grubu podelu na velike familije virusa. Kvalitet klasterovanja, procenjen koeficijentom silhouette, bio je viši za 6-grame, što ukazuje na bolje odvojene grupe. Klasteri su pokazali jaku korelaciju sa taksonomijom virusa: npr. različite vrste ebolavirusa grupisane su zajedno, odvojeno od koronavirusa, dok se Marburg virus ponekad izdvajao kao poseban klaster ili noise. Vizuelizacija PCA potvrđuje da n-gram profil genoma nosi biološki relevantan signal koji omogućava automatsko grupisanje virusnih genoma u skladu sa njihovim familijama i vrstama.
+\end{minipage}
+
+\newpage
+\begin{thebibliography}{99}
+
+\bibitem{hdbscan_gfg}
+Hierarchical Density-Based Spatial Clustering of Applications with Noise (HDBSCAN) - GeeksforGeeks.  
+\url{https://www.geeksforgeeks.org/machine-learning/hdbscan/}
+
+\bibitem{viralclust_github}
+GitHub - rnajena/viralclust: Small pipeline to cluster viral genomes based on their k-mer content. WiP.  
+\url{https://github.com/rnajena/viralclust}
+
+\bibitem{hierarchical_gfg}
+Hierarchical Clustering in Machine Learning - GeeksforGeeks.  
+\url{https://www.geeksforgeeks.org/machine-learning/hierarchical-clustering/}
+
+\bibitem{kmeans_uc}
+K-means Cluster Analysis · UC Business Analytics R Programming Guide.  
+\url{https://uc-r.github.io/kmeans_clustering}
+
+\bibitem{kmeans_neptune}
+K-Means Clustering Explained - Neptune.ai.  
+\url{https://neptune.ai/blog/k-means-clustering}
+
+\bibitem{typing_onehealth}
+Typing methods based on whole genome sequencing data | One Health Outlook | Full Text.  
+\url{https://onehealthoutlook.biomedcentral.com/articles/10.1186/s42522-020-0010-1}
+
+\bibitem{clustering_metrics_gfg}
+Clustering Metrics in Machine Learning - GeeksforGeeks.  
+\url{https://www.geeksforgeeks.org/machine-learning/clustering-metrics/}
+
+\end{thebibliography}
+
 
 \end{document}
