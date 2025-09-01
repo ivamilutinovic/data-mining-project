@@ -1,0 +1,25 @@
+virus_type,naziv,dosadašnji nazivi
+,,
+SARS2,ORF1a,ORF1a polyprotein
+SARS2,ORF1ab,ORF1ab polyprotein
+SARS2,surface glycoprotein,surface glycoprotein
+SARS2,envelope protein,envelope protein
+SARS2,membrane glycoprotein,membrane glycoprotein
+SARS2,nucleocapsid phosphoprotein,nucleocapsid phosphoprotein
+,,
+MERS,ORF1a - M,"1A polyprotein, ORF1a polyprotein, ORF1a, polyprotein 1a, ORF1A polyprotein, orf1a, MAG: ORF1a protein, polyprotein ORF1a, polyprotein orf1a, ORF1a protein, ORF 1a "
+MERS,ORF1ab - M,"1AB polyprotein, ORF1ab polyprotein, ORF1ab, polyprotein 1ab , ORF1AB polyprotein, orf1ab, polyprotein ORF1ab, polyprotein orf1ab, ORF1ab protein, ORF 1ab"
+MERS,surface glycoprotein - M,"spike protein, spike glycoprotein, surface glycoprotein, S protein, spike, MAG: S, "
+MERS,envelope protein - M,"envelope protein, E protein, envelope, E, MAG: E, "
+MERS,membrane glycoprotein - M,"membrane protein, membrane glycoprotein, M protein, M, MAG: M, membrane"
+MERS,nucleocapsid phosphoprotein - M,"nucleoprotein, nucleocapsid protein, nucleocapsid phosphoprotein, N protein , nucleocapsid, N, MAG: N, "
+,,
+MARBURG,nucleocapsid phosphoprotein - R,"nucleoprotein, NP protein, NP, nucleocapsid protein"
+MARBURG,membrane glycoprotein - R,"matrix protein, VP40, VP40 protein, matrix protein VP40,   viral protein 40, virion protein 40"
+MARBURG,surface glycoprotein - R,"spike-envelope glycoprotein, glycoprotein, GP,GP protein, envelope glycoprotein, glycoprotein, surface glycoprotein, virion spike glycoprotein precursor,virion spike glycoprotein"
+MARBURG,polymerase - R,"polymerase L, L, RNA-directed RNA polymerase L, RNA-dependent RNA polymerase, polymerase, L protein, transcriptase"
+,,
+EBOLA,polymerase - E,"polymerase L, RNA-dependent RNA polymerase L, polymerase protein L, viral polymerase, RNA-dependent RNA polymerase, RNA-directed RNA polymerase, L, RNA-directed RNA polymerase L, L protein, polymerase, viral polyermase"
+EBOLA,nucleocapsid phosphoprotein - E,"nucleprotein, nucleprotein, NP, nucleoprotein, NP protein, major nucleoprotein, nucleoprotein NP"
+EBOLA,surface glycoprotein - E,"spike-envelope glycoprotein, spike glycoprotein GP, structural surface glycoprotein, surface glycoprotein GP precursor, spike glycoprotein precursor, spike glycoprotein, glycoprotein precursor, surface glycoprotein GP, GP1,2, envelope glycoprotein, glycoprotein, spike GP, GP, surface glycoprotein, structural glycoprotein, virion spike glycoprotein precursor"
+EBOLA,membrane glycoprotein - E,"matrix protein, viral protein 40, virus protein 40, membrane-associated matrix protein VP40, virus protein 40 matrix protein, membrane-associated protein VP40, VP40, membrane-associated protein, matrix protein VP40, matrix protein, VP40 protein, VP40 matrix protein"
